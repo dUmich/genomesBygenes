@@ -59,6 +59,13 @@ fn main() {
             // It also splits up the blast line into the accn and sequence.
             let (accn, range) = blast_line.expect("Failed to read BLAST file");
             // TODO add to the sequences map
+	    let sequence = sequences.entry(accn).or_insert_with(Vec::new);
+            if range.end > sequence_counts.len() {
+                sequences.resize(range.end, 0);
+            }
+	    for index in range {
+                sequences[index] += 1;
+            }
             // hint: later on we use the `entry` API - could that be useful here?
             // hint: the default should be `Vec::new()`, meaning no sequences are present
             // https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.entry
@@ -76,6 +83,7 @@ fn main() {
                 // This is executed if it does match, and there are sequences with this accn.
                 for sequence in sequences {
                     // TODO check if we should add to the count
+                    
                     // Hint: `sequence` is of type range
                     // Hint: You'll also want to use `range`, the range of this gene
                     // Hint: ranges have start and end fields
