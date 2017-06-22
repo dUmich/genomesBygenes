@@ -60,12 +60,8 @@ fn main() {
             let (accn, range) = blast_line.expect("Failed to read BLAST file");
             // TODO add to the sequences map
 	    let sequence = sequences.entry(accn).or_insert_with(Vec::new);
-            if range.end > sequence_counts.len() {
-                sequences.resize(range.end, 0);
-            }
-	    for index in range {
-                sequences[index] += 1;
-            }
+            
+            sequence.push(range);
             // hint: later on we use the `entry` API - could that be useful here?
             // hint: the default should be `Vec::new()`, meaning no sequences are present
             // https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.entry
@@ -83,7 +79,9 @@ fn main() {
                 // This is executed if it does match, and there are sequences with this accn.
                 for sequence in sequences {
                     // TODO check if we should add to the count
-                    
+                    if sequence.end > range.start && sequence.start < range.end {
+		    count += 1;
+                    }
                     // Hint: `sequence` is of type range
                     // Hint: You'll also want to use `range`, the range of this gene
                     // Hint: ranges have start and end fields
@@ -116,6 +114,7 @@ fn main() {
             // If we did that, we'd have to create the `Vec` each time, even if we didn't use it.
             let gene_counts = data.entry(gene).or_insert_with(|| vec![0; genome_count]);
             // TODO add the count to correct field in gene_counts
+            gene_counts[i] = count;
             // Hint: `gene_counts` is of type `Vec<u32>` (`u32` is a positive integer)
             // Hint: `i` is the index of the genome, as defined up above
         }
@@ -145,7 +144,9 @@ fn main() {
         // TODO print out the data
         // Hint: `genome_counts` is an array of positive integers
         // Hint: It lines up with the order of the genomes in the headers
-        
+        for count in genome_counts {
+        print!("\t{}", count);
+        }
         // Begin the next line
         println!("");
     }
